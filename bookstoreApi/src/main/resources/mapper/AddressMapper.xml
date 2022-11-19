@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.bookstore.mapper.AddressMapper">
+<!-- 自定义映射规则：resultMap标签来完成映射规则的定义 -->
+<!--
+    id属性：表示给这个映射复制分配一个唯一的id值
+    type:取值时一个类，表示的是数据库中的查询结构与java哪个实体类进行结果集的映射
+   -->
+    <resultMap id="addressEntityMap" type="com.cy.bookstore.entity.Address">
+        <!-- 主键是不能省略的 -->
+        <id column="aid" property="aid" />
+        <result column="city_name" property="cityName" />
+        <result column="city_code" property="cityCode" />
+        <result column="province_name" property="provinceName" />
+        <result column="province_code" property="provinceCode" />
+        <result column="area_name" property="areaName" />
+        <result column="area_code" property="areaCode" />
+        <result column="is_default" property="isDefault" />
+        <result column="created_user" property="createdUser" />
+        <result column="created_time" property="createdTime" />
+        <result column="modified_user" property="modifiedUser" />
+        <result column="modified_time" property="modifiedTime" />
+    </resultMap>
+
+    <insert id="addAddress" useGeneratedKeys="true" keyProperty="aid">
+        insert into address(uid,name,province_name,province_code,city_name,city_code,area_name,area_code,zip,tel,phone,address,tag,is_default,created_user,created_time,modified_user,modified_time)
+        values (#{uid},#{name},#{provinceName},#{provinceCode},#{cityName},#{cityCode},#{areaName},#{areaCode},#{zip},#{tel},#{phone},#{address},#{tag},#{isDefault},#{createdUser},#{createdTime},#{modifiedUser},#{modifiedTime})
+    </insert>
+
+    <select id="getAddressNum" resultType="java.lang.Integer">
+        select count(*) from address where uid=#{uid}
+    </select>
+
+    <select id="getAddressByUid" resultMap="addressEntityMap">
+        select * from address where uid=#{uid}
+        order by is_default desc,created_time desc
+    </select>
+
+    <select id="getAddressByAid" resultMap="addressEntityMap">
+        select * from address where aid=#{aid}
+    </select>
+
+    <update id="setAllNotDefault">
+        update address set is_default=0 where uid=#{uid}
+    </update>
+
+    <update id="updateDefault">
+        update address set is_default=1,modified_user=#{modifiedUser},modified_time=#{modifiedTime}
+        where aid=#{aid}
+    </update>
+
+    <select id="findLastModifiedAddress" resultMap="addressEntityMap">
+        select * from address where uid=#{uid} order by modified_time DESC limit 0,1
+    </select>
+
+    <delete id="deleteAddress">
+        delete from address where aid=#{aid}
+    </delete>
+
+    <update id="updateAddress">
+        update address
+            set name=#{name},province_name=#{provinceName},province_code=#{provinceCode},city_name=#{cityName},city_code=#{cityCode},area_name=#{areaName},area_code=#{areaCode},zip=#{zip},tel=#{tel},phone=#{phone},address=#{address},tag=#{tag},modified_user=#{modifiedUser},modified_time=#{modifiedTime}
+        where aid=#{aid}
+    </update>
+</mapper>

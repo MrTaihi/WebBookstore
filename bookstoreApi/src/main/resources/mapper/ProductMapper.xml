@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.bookstore.mapper.ProductMapper">
+    <resultMap id="productEntityMap" type="com.cy.bookstore.entity.Product">
+        <id column="id" property="id" />
+        <result column="category_id" property="categoryId" />
+        <result column="item_type" property="itemType" />
+        <result column="sell_point" property="sellPoint" />
+        <result column="created_user" property="createdUser" />
+        <result column="created_time" property="createdTime" />
+        <result column="modified_user" property="modifiedUser" />
+        <result column="modified_time" property="modifiedTime" />
+    </resultMap>
+
+    <insert id="insertNewProduct" keyProperty="id" useGeneratedKeys="true">
+        insert into product(category_id,item_type,title,sell_point,price,num,image,author,description,created_user,created_time,modified_user,modified_time)
+        values (#{categoryId},#{itemType},#{title},#{sellPoint},#{price},#{num},#{image},#{author},#{description},#{createdUser},#{createdTime},#{modifiedUser},#{modifiedTime})
+    </insert>
+
+    <update id="updateProduct">
+        update product set
+            category_id=#{categoryId},title=#{title},price=#{price},num=#{num}
+        where id=#{id}
+    </update>
+
+    <select id="getHotProduct" resultMap="productEntityMap">
+        select * from product where status=1 order by priority DESC limit 0,4
+    </select>
+
+    <select id="getNewProduct" resultMap="productEntityMap">
+        select * from product where status=1 order by created_time DESC limit 0,4
+    </select>
+
+    <select id="findProductById" resultMap="productEntityMap">
+        select * from product where status=1 and id=#{id}
+    </select>
+
+    <update id="deleteByPid">
+        update product
+            set status=0,modified_user=#{username},modified_time=#{modifiedTime}
+        where id=#{id}
+    </update>
+
+    <update id="reListingByPid">
+        update product
+            set status=1,modified_user=#{username},modified_time=#{modifiedTime}
+        where id=#{id}
+    </update>
+
+    <update id="addProductImg">
+        update product
+            set image=#{imgPath},modified_user=#{username},modified_time=#{modifiedTime}
+        where id=#{pid}
+    </update>
+
+    <select id="getAll" resultMap="productEntityMap">
+        select * from product
+        <where>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title},'%')
+            </if>
+            <if test="status == null">
+                AND status = 1
+            </if>
+            <if test="status == 0">
+                AND status = 0
+            </if>
+        </where>
+    </select>
+</mapper>
